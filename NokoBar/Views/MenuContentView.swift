@@ -5,6 +5,7 @@ struct MenuContentView: View {
     @Environment(\.openWindow) private var openWindow
     @Environment(\.openSettings) private var openSettings
     @State private var search = ""
+    @State private var listHeight: CGFloat = 0
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -54,15 +55,18 @@ struct MenuContentView: View {
                     .frame(maxWidth: .infinity)
                     .padding(20)
             } else {
+                // The popover has no intrinsic height for a ScrollView, so measure the content
+                // and give the ScrollView an explicit height (capped at 480 pt).
                 ScrollView {
-                    LazyVStack(spacing: 0) {
+                    VStack(spacing: 0) {
                         ForEach(projects) { project in
                             ProjectRowView(project: project, timer: model.timers[project.id])
                             Divider()
                         }
                     }
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { listHeight = $0 }
                 }
-                .frame(maxHeight: 480)
+                .frame(height: min(max(listHeight, 44), 480))
             }
         }
     }
