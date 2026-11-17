@@ -78,12 +78,43 @@ final class NokoClientTests: XCTestCase {
         }
     }
 
-    func testLogSendsFormBody() async throws {
+    func testJSONBody() throws {
+        let payload = ["description": "a #b & \"c\" ż"]
+        let r = URLRequestBuilder.make(url: URL(string: "https://x.test/y")!, method: "PUT", token: "t", json: payload)
+        XCTAssertEqual(r.value(forHTTPHeaderField: "Content-Type"), "application/json")
+        let decoded = try JSONDecoder().decode([String: String].self, from: try XCTUnwrap(r.httpBody))
+        XCTAssertEqual(decoded, payload)
+    }
+
+    func testNotesAndLogSendJSON() async throws {
         let client = makeClient()
         StubProtocol.handler = { _ in (204, [:], Data()) }
-        try await client.logTimer(projectID: 5, description: "a #b&c")
-        let r = StubProtocol.requests.last!
-        XCTAssertEqual(r.httpMethod, "PUT")
-        XCTAssertTrue(r.url!.path.hasSuffix("/projects/5/timer/log"))
+        try await client.updateNotes(projectID: 5, description: "work #x")
+        try await client.logTimer(projectID: 5, description: "done #y")
+        let reqs = StubProtocol.requests
+        XCTAssertEqual(reqs.count, 2)
+        for (r, suffix, text) in [(reqs[0], "/projects/5/timer", "work #x"), (reqs[1], "/projects/5/timer/log", "done #y")] {
+            XCTAssertEqual(r.httpMethod, "PUT")
+            XCTAssertTrue(r.url!.path.hasSuffix(suffix))
+            XCTAssertEqual(r.value(forHTTPHeaderField: "Content-Type"), "application/json")
+            let body = try XCTUnwrap(Self.bodyData(r))
+            let obj = try JSONSerialization.jsonObject(with: body) as? [String: String]
+            XCTAssertEqual(obj?["description"], text)
+        }
+    }
+
+    /// URLProtocol delivers request bodies as a stream.
+    private static func bodyData(_ r: URLRequest) -> Data? {
+        if let b = r.httpBody { return b }
+        guard let stream = r.httpBodyStream else { return nil }
+        stream.open(); defer { stream.close() }
+        var data = Data()
+        var buf = [UInt8](repeating: 0, count: 1024)
+        while stream.hasBytesAvailable {
+            let n = stream.read(&buf, maxLength: buf.count)
+            if n <= 0 { break }
+            data.append(buf, count: n)
+        }
+        return data
     }
 }

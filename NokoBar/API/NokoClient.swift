@@ -58,11 +58,11 @@ actor NokoClient {
     }
 
     func updateNotes(projectID: Int, description: String) async throws {
-        _ = try await send("PUT", "projects/\(projectID)/timer", form: ["description": description])
+        _ = try await send("PUT", "projects/\(projectID)/timer", json: ["description": description])
     }
 
     func logTimer(projectID: Int, description: String) async throws {
-        _ = try await send("PUT", "projects/\(projectID)/timer/log", form: ["description": description])
+        _ = try await send("PUT", "projects/\(projectID)/timer/log", json: ["description": description])
     }
 
     func discardTimer(projectID: Int) async throws {
@@ -85,7 +85,7 @@ actor NokoClient {
         while true {
             do { items += try decoder.decode([T].self, from: data) } catch { throw NokoError.invalidResponse }
             guard let next = Self.nextURL(from: response) else { break }
-            (data, response) = try await perform(URLRequestBuilder.make(url: next, method: "GET", token: token, form: nil))
+            (data, response) = try await perform(URLRequestBuilder.make(url: next, method: "GET", token: token, json: nil))
         }
         return items
     }
@@ -103,10 +103,10 @@ actor NokoClient {
 
     private func send(_ method: String, _ path: String,
                       query: [URLQueryItem] = [],
-                      form: [String: String]? = nil) async throws -> (Data, HTTPURLResponse) {
+                      json: [String: String]? = nil) async throws -> (Data, HTTPURLResponse) {
         var comps = URLComponents(url: baseURL.appendingPathComponent(path), resolvingAgainstBaseURL: false)!
         if !query.isEmpty { comps.queryItems = query }
-        let request = URLRequestBuilder.make(url: comps.url!, method: method, token: token, form: form)
+        let request = URLRequestBuilder.make(url: comps.url!, method: method, token: token, json: json)
         return try await perform(request)
     }
 
@@ -155,21 +155,16 @@ actor NokoClient {
 }
 
 enum URLRequestBuilder {
-    static func make(url: URL, method: String, token: String?, form: [String: String]?) -> URLRequest {
+    /// Noko API v2 expects JSON request bodies (form-encoded bodies get "JSON Parsing Error").
+    static func make(url: URL, method: String, token: String?, json: [String: String]?) -> URLRequest {
         var r = URLRequest(url: url)
         r.httpMethod = method
         r.setValue(NokoClient.userAgent, forHTTPHeaderField: "User-Agent")
         r.setValue("application/json", forHTTPHeaderField: "Accept")
         if let token { r.setValue(token, forHTTPHeaderField: "X-NokoToken") }
-        if let form {
-            var c = URLComponents()
-            c.queryItems = form.map { URLQueryItem(name: $0.key, value: $0.value) }
-            let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: "-._~"))
-            let body = form.map { k, v in
-                "\(k.addingPercentEncoding(withAllowedCharacters: allowed)!)=\(v.addingPercentEncoding(withAllowedCharacters: allowed) ?? "")"
-            }.joined(separator: "&")
-            r.httpBody = Data(body.utf8)
-            r.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        if let json {
+            r.httpBody = try? JSONEncoder().encode(json)
+            r.setValue("application/json", forHTTPHeaderField: "Content-Type")
         }
         return r
     }
