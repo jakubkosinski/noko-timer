@@ -88,6 +88,26 @@ final class NokoClientTests: XCTestCase {
         XCTAssertNil(Self.bodyData(r).flatMap { $0.isEmpty ? nil : $0 })
     }
 
+    func testEntriesQueryAndDecoding() async throws {
+        let client = makeClient()
+        StubProtocol.handler = { _ in
+            (200, [:], Data(##"[{"id":1,"date":"2026-11-17","minutes":90,"description":"x #a","tags":[{"id":3,"name":"a"}]},{"id":2,"date":"2026-11-16","minutes":30}]"##.utf8))
+        }
+        let entries = try await client.entries(projectID: 5, userID: 9, from: "2026-10-19", to: "2026-11-17")
+        XCTAssertEqual(entries.map(\.minutes), [90, 30])
+        XCTAssertEqual(entries[0].tags?.first?.name, "a")
+        XCTAssertNil(entries[1].tags)
+        let r = StubProtocol.requests.last!
+        XCTAssertEqual(r.httpMethod, "GET")
+        XCTAssertTrue(r.url!.path.hasSuffix("/entries"))
+        let items = URLComponents(url: r.url!, resolvingAgainstBaseURL: false)!.queryItems!
+        func v(_ n: String) -> String? { items.first { $0.name == n }?.value }
+        XCTAssertEqual(v("project_ids"), "5")
+        XCTAssertEqual(v("user_ids"), "9")
+        XCTAssertEqual(v("from"), "2026-10-19")
+        XCTAssertEqual(v("to"), "2026-11-17")
+    }
+
     func testJSONBody() throws {
         let payload = ["description": "a #b & \"c\" ż"]
         let r = URLRequestBuilder.make(url: URL(string: "https://x.test/y")!, method: "PUT", token: "t", json: payload)

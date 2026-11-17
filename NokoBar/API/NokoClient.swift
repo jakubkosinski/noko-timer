@@ -49,6 +49,15 @@ actor NokoClient {
         try await getAll("timers")
     }
 
+    func entries(projectID: Int, userID: Int, from: String, to: String) async throws -> [NokoEntry] {
+        try await getAll("entries", query: [
+            .init(name: "project_ids", value: String(projectID)),
+            .init(name: "user_ids", value: String(userID)),
+            .init(name: "from", value: from),
+            .init(name: "to", value: to),
+        ])
+    }
+
     func startTimer(projectID: Int) async throws {
         _ = try await send("PUT", "projects/\(projectID)/timer/start")
     }

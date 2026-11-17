@@ -160,6 +160,18 @@ final class AppModel {
         await refreshTimers()
     }
 
+    /// The current user's entries in a project for a date range (yyyy-MM-dd).
+    func entries(projectID: Int, from: String, to: String) async throws -> [NokoEntry] {
+        do {
+            if user == nil { user = try await client.currentUser() }
+            guard let userID = user?.id else { throw NokoError.invalidResponse }
+            return try await client.entries(projectID: projectID, userID: userID, from: from, to: to)
+        } catch {
+            if case NokoError.unauthorized = error { handle(error) }
+            throw error
+        }
+    }
+
     /// Discards the timer without logging an entry. Throws so the window can show the error inline.
     func discard(projectID: Int) async throws {
         do {

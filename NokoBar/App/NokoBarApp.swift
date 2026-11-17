@@ -28,6 +28,14 @@ struct NokoBarApp: App {
         }
         .windowResizability(.contentSize)
 
+        WindowGroup("report.title", id: "project-report", for: Int.self) { $projectID in
+            if let projectID {
+                ProjectReportView(projectID: projectID)
+                    .environment(model)
+            }
+        }
+        .windowResizability(.contentSize)
+
         Settings {
             SettingsView()
                 .environment(model)

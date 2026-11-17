@@ -6,12 +6,22 @@ struct ProjectRowView: View {
     let project: NokoProject
     let timer: NokoTimer?
     @State private var notes = ""
+    @State private var nameHovered = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack(spacing: 8) {
                 Circle().fill(Color(hex: project.color) ?? .gray).frame(width: 10, height: 10)
-                Text(project.name).lineLimit(1)
+                Button {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "project-report", value: project.id)
+                    MenuPopover.close()
+                } label: {
+                    Text(project.name).lineLimit(1).underline(nameHovered)
+                }
+                .buttonStyle(.plain)
+                .onHover { nameHovered = $0 }
+                .help(Text("row.report"))
                 Spacer()
                 if let timer, timer.isActive {
                     Text(TimeFormat.hms(model.elapsedSeconds(timer)))
@@ -29,6 +39,7 @@ struct ProjectRowView: View {
                     Button {
                         NSApp.activate(ignoringOtherApps: true)
                         openWindow(id: "log-timer", value: project.id)
+                        MenuPopover.close()
                     } label: {
                         Image(systemName: "stop.fill")
                     }

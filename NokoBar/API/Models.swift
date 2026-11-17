@@ -48,6 +48,19 @@ struct NokoTimer: Codable, Equatable, Identifiable, Sendable {
     var isActive: Bool { state == .running || state == .paused }
 }
 
+struct EntryTag: Codable, Equatable, Sendable {
+    let id: Int
+    let name: String
+}
+
+struct NokoEntry: Codable, Equatable, Identifiable, Sendable {
+    let id: Int
+    let date: String          // yyyy-MM-dd
+    let minutes: Int
+    let description: String?
+    let tags: [EntryTag]?
+}
+
 struct APIErrorBody: Codable, Sendable {
     let code: String?
     let message: String?

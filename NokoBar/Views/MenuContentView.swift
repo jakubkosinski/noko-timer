@@ -36,6 +36,7 @@ struct MenuContentView: View {
             Button("menu.login") {
                 NSApp.activate(ignoringOtherApps: true)
                 openWindow(id: "login")
+                MenuPopover.close()
             }
             .buttonStyle(.borderedProminent)
         }
@@ -82,6 +83,7 @@ struct MenuContentView: View {
             Button("menu.settings") {
                 NSApp.activate(ignoringOtherApps: true)
                 openSettings()
+                MenuPopover.close()
             }
             Spacer()
             Button("menu.quit") { NSApplication.shared.terminate(nil) }
