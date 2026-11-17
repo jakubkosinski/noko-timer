@@ -497,6 +497,54 @@
           }
         }
       }
+    },
+    "settings.launchAtLogin": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Launch at login"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Uruchamiaj przy logowaniu"
+          }
+        }
+      }
+    },
+    "settings.requiresApproval": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Approval needed in System Settings."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wymagana zgoda w Ustawieniach systemowych."
+          }
+        }
+      }
+    },
+    "settings.openLoginItems": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow in System Settings…"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zezwól w Ustawieniach systemowych…"
+          }
+        }
+      }
     }
   }
 }
