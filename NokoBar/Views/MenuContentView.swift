@@ -79,6 +79,14 @@ struct MenuContentView: View {
                     Image(systemName: "arrow.clockwise")
                 }
                 .help(Text("menu.refresh"))
+                Button {
+                    NSApp.activate(ignoringOtherApps: true)
+                    openWindow(id: "report", value: ReportScope.all)
+                    MenuPopover.close()
+                } label: {
+                    Image(systemName: "chart.bar.xaxis")
+                }
+                .help(Text("menu.reports"))
             }
             Button("menu.settings") {
                 NSApp.activate(ignoringOtherApps: true)

@@ -49,13 +49,15 @@ actor NokoClient {
         try await getAll("timers")
     }
 
-    func entries(projectID: Int, userID: Int, from: String, to: String) async throws -> [NokoEntry] {
-        try await getAll("entries", query: [
-            .init(name: "project_ids", value: String(projectID)),
+    /// The user's entries for a date range; `projectID == nil` means all projects.
+    func entries(projectID: Int?, userID: Int, from: String, to: String) async throws -> [NokoEntry] {
+        var query: [URLQueryItem] = [
             .init(name: "user_ids", value: String(userID)),
             .init(name: "from", value: from),
             .init(name: "to", value: to),
-        ])
+        ]
+        if let projectID { query.insert(.init(name: "project_ids", value: String(projectID)), at: 0) }
+        return try await getAll("entries", query: query)
     }
 
     func startTimer(projectID: Int) async throws {

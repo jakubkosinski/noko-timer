@@ -108,6 +108,18 @@ final class NokoClientTests: XCTestCase {
         XCTAssertEqual(v("to"), "2026-11-17")
     }
 
+    func testEntriesForAllProjectsOmitsProjectFilter() async throws {
+        let client = makeClient()
+        StubProtocol.handler = { _ in
+            (200, [:], Data(##"[{"id":1,"date":"2026-11-17","minutes":10,"project":{"id":4,"name":"Alpha","color":"#ff0000","billable":true}}]"##.utf8))
+        }
+        let entries = try await client.entries(projectID: nil, userID: 9, from: "2026-11-01", to: "2026-11-17")
+        XCTAssertEqual(entries.first?.project, EntryProject(id: 4, name: "Alpha", color: "#ff0000"))
+        let items = URLComponents(url: StubProtocol.requests.last!.url!, resolvingAgainstBaseURL: false)!.queryItems!
+        XCTAssertNil(items.first { $0.name == "project_ids" })
+        XCTAssertEqual(items.first { $0.name == "user_ids" }?.value, "9")
+    }
+
     func testJSONBody() throws {
         let payload = ["description": "a #b & \"c\" ż"]
         let r = URLRequestBuilder.make(url: URL(string: "https://x.test/y")!, method: "PUT", token: "t", json: payload)

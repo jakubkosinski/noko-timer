@@ -14,7 +14,7 @@ struct ProjectRowView: View {
                 Circle().fill(Color(hex: project.color) ?? .gray).frame(width: 10, height: 10)
                 Button {
                     NSApp.activate(ignoringOtherApps: true)
-                    openWindow(id: "project-report", value: project.id)
+                    openWindow(id: "report", value: ReportScope.project(project.id))
                     MenuPopover.close()
                 } label: {
                     Text(project.name).lineLimit(1).underline(nameHovered)

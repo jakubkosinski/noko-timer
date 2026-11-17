@@ -28,9 +28,9 @@ struct NokoBarApp: App {
         }
         .windowResizability(.contentSize)
 
-        WindowGroup("report.title", id: "project-report", for: Int.self) { $projectID in
-            if let projectID {
-                ProjectReportView(projectID: projectID)
+        WindowGroup("report.title", id: "report", for: ReportScope.self) { $scope in
+            if let scope {
+                ReportView(scope: scope)
                     .environment(model)
             }
         }

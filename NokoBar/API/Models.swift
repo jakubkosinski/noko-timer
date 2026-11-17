@@ -53,12 +53,19 @@ struct EntryTag: Codable, Equatable, Sendable {
     let name: String
 }
 
+struct EntryProject: Codable, Equatable, Sendable {
+    let id: Int
+    let name: String
+    let color: String?
+}
+
 struct NokoEntry: Codable, Equatable, Identifiable, Sendable {
     let id: Int
     let date: String          // yyyy-MM-dd
     let minutes: Int
     let description: String?
     let tags: [EntryTag]?
+    var project: EntryProject?
 }
 
 struct APIErrorBody: Codable, Sendable {

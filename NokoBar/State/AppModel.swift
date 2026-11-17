@@ -160,8 +160,8 @@ final class AppModel {
         await refreshTimers()
     }
 
-    /// The current user's entries in a project for a date range (yyyy-MM-dd).
-    func entries(projectID: Int, from: String, to: String) async throws -> [NokoEntry] {
+    /// The current user's entries for a date range (yyyy-MM-dd); `projectID == nil` means all projects.
+    func entries(projectID: Int?, from: String, to: String) async throws -> [NokoEntry] {
         do {
             if user == nil { user = try await client.currentUser() }
             guard let userID = user?.id else { throw NokoError.invalidResponse }
