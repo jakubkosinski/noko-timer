@@ -545,6 +545,54 @@
           }
         }
       }
+    },
+    "finish.discard": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usuń"
+          }
+        }
+      }
+    },
+    "finish.discardConfirmTitle": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this timer?"
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Usunąć ten timer?"
+          }
+        }
+      }
+    },
+    "finish.discardConfirmMessage": {
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The tracked time will be discarded and no entry will be logged."
+          }
+        },
+        "pl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zmierzony czas zostanie odrzucony i żaden wpis nie zostanie zapisany."
+          }
+        }
+      }
     }
   }
 }

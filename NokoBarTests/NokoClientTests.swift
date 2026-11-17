@@ -78,6 +78,16 @@ final class NokoClientTests: XCTestCase {
         }
     }
 
+    func testDiscardSendsDelete() async throws {
+        let client = makeClient()
+        StubProtocol.handler = { _ in (204, [:], Data()) }
+        try await client.discardTimer(projectID: 5)
+        let r = StubProtocol.requests.last!
+        XCTAssertEqual(r.httpMethod, "DELETE")
+        XCTAssertTrue(r.url!.path.hasSuffix("/projects/5/timer"))
+        XCTAssertNil(Self.bodyData(r).flatMap { $0.isEmpty ? nil : $0 })
+    }
+
     func testJSONBody() throws {
         let payload = ["description": "a #b & \"c\" ż"]
         let r = URLRequestBuilder.make(url: URL(string: "https://x.test/y")!, method: "PUT", token: "t", json: payload)

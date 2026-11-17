@@ -8,6 +8,7 @@ struct LogTimerView: View {
     @State private var loaded = false
     @State private var error: String?
     @State private var submitting = false
+    @State private var confirmDiscard = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -22,12 +23,22 @@ struct LogTimerView: View {
                     Text(error).font(.caption).foregroundStyle(.red)
                 }
                 HStack {
+                    Button("finish.discard", role: .destructive) { confirmDiscard = true }
+                        .foregroundStyle(.red)
+                        .disabled(submitting)
                     Spacer()
                     Button("finish.cancel", role: .cancel) { dismiss() }
                         .keyboardShortcut(.cancelAction)
+                        .disabled(submitting)
                     Button("finish.confirm") { submit() }
                         .keyboardShortcut(.defaultAction)
                         .disabled(submitting)
+                }
+                .confirmationDialog("finish.discardConfirmTitle", isPresented: $confirmDiscard) {
+                    Button("finish.discard", role: .destructive) { discard() }
+                    Button("finish.cancel", role: .cancel) {}
+                } message: {
+                    Text("finish.discardConfirmMessage")
                 }
                 .onAppear {
                     if !loaded { notes = timer.description ?? ""; loaded = true }
@@ -39,6 +50,19 @@ struct LogTimerView: View {
         }
         .padding(20)
         .frame(width: 380)
+    }
+
+    private func discard() {
+        submitting = true
+        Task {
+            do {
+                try await model.discard(projectID: projectID)
+                dismiss()
+            } catch {
+                self.error = error.localizedDescription
+                submitting = false
+            }
+        }
     }
 
     private func submit() {

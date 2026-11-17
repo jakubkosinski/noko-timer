@@ -160,6 +160,18 @@ final class AppModel {
         await refreshTimers()
     }
 
+    /// Discards the timer without logging an entry. Throws so the window can show the error inline.
+    func discard(projectID: Int) async throws {
+        do {
+            try await client.discardTimer(projectID: projectID)
+        } catch {
+            if case NokoError.unauthorized = error { handle(error) }
+            throw error
+        }
+        errorMessage = nil
+        await refreshTimers()
+    }
+
     private func run(refresh: Bool = true, _ op: @escaping () async throws -> Void) async {
         do {
             try await op()
