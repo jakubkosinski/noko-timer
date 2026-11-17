@@ -1,0 +1,57 @@
+name: NokoBar
+options:
+  bundleIdPrefix: com.nokobar
+  deploymentTarget:
+    macOS: "14.0"
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MARKETING_VERSION: "1.0"
+    CURRENT_PROJECT_VERSION: "1"
+    CODE_SIGN_IDENTITY: "-"
+    CODE_SIGN_STYLE: Manual
+targets:
+  NokoBar:
+    type: application
+    platform: macOS
+    sources:
+      - NokoBar
+    info:
+      path: NokoBar/App/Info.plist
+      properties:
+        CFBundleName: NokoBar
+        CFBundleDisplayName: NokoBar
+        LSUIElement: true
+        LSMinimumSystemVersion: "14.0"
+    entitlements:
+      path: NokoBar/App/NokoBar.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.network.client: true
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nokobar.NokoBar
+        ENABLE_HARDENED_RUNTIME: true
+        DEVELOPMENT_ASSET_PATHS: ""
+        SWIFT_STRICT_CONCURRENCY: complete
+  NokoBarTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - NokoBarTests
+    dependencies:
+      - target: NokoBar
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.nokobar.NokoBarTests
+        GENERATE_INFOPLIST_FILE: true
+        BUNDLE_LOADER: "$(TEST_HOST)"
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/NokoBar.app/Contents/MacOS/NokoBar"
+schemes:
+  NokoBar:
+    build:
+      targets:
+        NokoBar: all
+    test:
+      targets:
+        - NokoBarTests
